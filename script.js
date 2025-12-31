@@ -466,17 +466,17 @@ function initBalloons() {
         }, (duration + delay) * 1000);
     }
     
-    // 初始创建一些气球
-    for (let i = 0; i < 10; i++) {
-        setTimeout(() => createBalloon(), i * 1000);
+    // 初始创建更多气球（增加数量）
+    for (let i = 0; i < 25; i++) {
+        setTimeout(() => createBalloon(), i * 300); // 更快的创建速度
     }
     
-    // 定期创建新气球
+    // 定期创建新气球（增加频率）
     setInterval(() => {
-        if (Math.random() > 0.3) { // 70% 概率创建新气球
+        if (Math.random() > 0.1) { // 90% 概率创建新气球
             createBalloon();
         }
-    }, 3000);
+    }, 1500); // 更短的间隔
 }
 
 // 初始化祝福语弹出
