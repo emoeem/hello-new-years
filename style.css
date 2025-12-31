@@ -548,6 +548,205 @@ body {
     transform: translateY(-3px);
 }
 
+/* 气球容器 */
+.balloons-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 500;
+    overflow: hidden;
+}
+
+.balloon {
+    position: absolute;
+    width: 60px;
+    height: 80px;
+    border-radius: 50%;
+    bottom: -100px;
+    animation: balloon-rise linear forwards;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+}
+
+.balloon::before {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.balloon::after {
+    content: '';
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+}
+
+@keyframes balloon-rise {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-120vh) rotate(20deg);
+        opacity: 0;
+    }
+}
+
+/* 祝福语弹出容器 */
+.blessings-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 600;
+    overflow: hidden;
+}
+
+.blessing-bubble {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--dark-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    max-width: 300px;
+    text-align: center;
+    animation: blessing-float linear forwards;
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+}
+
+.blessing-bubble::before {
+    content: '✨';
+    margin-right: 8px;
+}
+
+@keyframes blessing-float {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    80% {
+        opacity: 1;
+        transform: translateY(-100px) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-120px) scale(0.9);
+    }
+}
+
+/* 音频控制 */
+.audio-controls {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    padding: 12px 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.audio-btn {
+    background: var(--gradient);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.3rem;
+}
+
+.audio-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.audio-btn.muted {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+}
+
+.audio-text {
+    display: none;
+}
+
+.volume-slider {
+    width: 100px;
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: all 0.3s ease;
+}
+
+.audio-controls:hover .volume-slider {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.volume-slider input {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    outline: none;
+}
+
+.volume-slider input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.volume-slider input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
 /* 烟花容器 */
 .fireworks-container {
     position: fixed;
@@ -590,6 +789,52 @@ body {
     
     .interactive-card {
         padding: 25px;
+    }
+    
+    .audio-controls {
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 15px;
+    }
+    
+    .audio-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+    
+    .volume-slider {
+        width: 80px;
+    }
+    
+    .blessing-bubble {
+        max-width: 250px;
+        font-size: 1rem;
+        padding: 12px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .audio-controls {
+        bottom: 15px;
+        right: 15px;
+        padding: 8px 12px;
+    }
+    
+    .audio-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    
+    .volume-slider {
+        width: 60px;
+    }
+    
+    .blessing-bubble {
+        max-width: 200px;
+        font-size: 0.9rem;
+        padding: 10px 15px;
     }
 }
 

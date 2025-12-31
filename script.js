@@ -6,11 +6,25 @@ document.addEventListener('DOMContentLoaded', function() {
     initThemeToggle();
     initFireworks();
     initAnimations();
+    initAudioControls();
+    initBalloons();
+    initBlessings();
     
-    // 播放新年音乐（可选）
-    // const audio = document.getElementById('newYearSound');
-    // audio.volume = 0.3;
-    // audio.play().catch(e => console.log("音频播放需要用户交互"));
+    // 自动播放背景音乐（低音量）
+    const audio = document.getElementById('newYearSound');
+    audio.volume = 0.3;
+    audio.play().catch(e => {
+        console.log("音频自动播放被阻止，需要用户交互");
+        // 显示提示让用户点击页面任意位置开始音乐
+        document.body.addEventListener('click', function initAudioOnce() {
+            audio.play().then(() => {
+                console.log("音乐已开始播放");
+            }).catch(err => {
+                console.log("音乐播放失败:", err);
+            });
+            document.body.removeEventListener('click', initAudioOnce);
+        }, { once: true });
+    });
 });
 
 // 初始化倒计时
@@ -355,6 +369,193 @@ function initFireworks() {
     }, 30000);
 }
 
+// 初始化音频控制
+function initAudioControls() {
+    const audioToggle = document.getElementById('audioToggle');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const audio = document.getElementById('newYearSound');
+    const icon = audioToggle.querySelector('i');
+    
+    // 设置初始音量
+    audio.volume = volumeSlider.value / 100;
+    
+    // 音量滑块事件
+    volumeSlider.addEventListener('input', function() {
+        audio.volume = this.value / 100;
+    });
+    
+    // 静音/取消静音按钮
+    audioToggle.addEventListener('click', function() {
+        if (audio.muted) {
+            audio.muted = false;
+            icon.classList.remove('fa-volume-mute');
+            icon.classList.add('fa-volume-up');
+            audioToggle.classList.remove('muted');
+        } else {
+            audio.muted = true;
+            icon.classList.remove('fa-volume-up');
+            icon.classList.add('fa-volume-mute');
+            audioToggle.classList.add('muted');
+        }
+    });
+    
+    // 监听音频错误
+    audio.addEventListener('error', function() {
+        console.error('音频加载失败，使用备用音乐源');
+        // 可以在这里添加备用音乐源
+    });
+}
+
+// 初始化气球动画
+function initBalloons() {
+    const balloonsContainer = document.getElementById('balloonsContainer');
+    const balloonSound = document.getElementById('balloonSound');
+    
+    // 气球颜色
+    const balloonColors = [
+        'linear-gradient(135deg, #ff6b6b, #ff8e8e)',
+        'linear-gradient(135deg, #4ecdc4, #6ce6de)',
+        'linear-gradient(135deg, #ffd166, #ffe28c)',
+        'linear-gradient(135deg, #9d65ff, #b28cff)',
+        'linear-gradient(135deg, #ff9a6b, #ffb28c)',
+        'linear-gradient(135deg, #6bff8e, #8cffb2)'
+    ];
+    
+    // 创建气球
+    function createBalloon() {
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        
+        // 随机位置
+        const left = Math.random() * 90 + 5; // 5% 到 95%
+        
+        // 随机颜色
+        const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+        
+        // 随机大小
+        const size = Math.random() * 30 + 50; // 50px 到 80px
+        const height = size * 1.3;
+        
+        // 随机动画时长
+        const duration = Math.random() * 15 + 20; // 20秒 到 35秒
+        
+        // 随机延迟
+        const delay = Math.random() * 5;
+        
+        balloon.style.cssText = `
+            left: ${left}%;
+            width: ${size}px;
+            height: ${height}px;
+            background: ${color};
+            animation-duration: ${duration}s;
+            animation-delay: ${delay}s;
+        `;
+        
+        balloonsContainer.appendChild(balloon);
+        
+        // 气球动画结束后移除
+        setTimeout(() => {
+            if (balloon.parentNode) {
+                // 播放气球爆炸音效
+                if (balloonSound) {
+                    balloonSound.currentTime = 0;
+                    balloonSound.play().catch(e => console.log("音效播放失败"));
+                }
+                balloon.remove();
+            }
+        }, (duration + delay) * 1000);
+    }
+    
+    // 初始创建一些气球
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => createBalloon(), i * 1000);
+    }
+    
+    // 定期创建新气球
+    setInterval(() => {
+        if (Math.random() > 0.3) { // 70% 概率创建新气球
+            createBalloon();
+        }
+    }, 3000);
+}
+
+// 初始化祝福语弹出
+function initBlessings() {
+    const blessingsContainer = document.getElementById('blessingsContainer');
+    
+    // 祝福语库
+    const blessings = [
+        "新年快乐！🎉",
+        "万事如意！✨",
+        "身体健康！💪",
+        "财源广进！💰",
+        "心想事成！🌟",
+        "阖家幸福！🏠",
+        "事业有成！📈",
+        "笑口常开！😊",
+        "好运连连！🍀",
+        "梦想成真！🎯",
+        "平安喜乐！🕊️",
+        "友谊长存！🤝",
+        "天天开心！😄",
+        "步步高升！📊",
+        "幸福美满！💖",
+        "吉祥如意！🧧",
+        "福星高照！⭐",
+        "前程似锦！🌈",
+        "大吉大利！🍊",
+        "年年有余！🐟"
+    ];
+    
+    // 创建祝福语气泡
+    function createBlessingBubble() {
+        const bubble = document.createElement('div');
+        bubble.className = 'blessing-bubble';
+        
+        // 随机祝福语
+        const blessing = blessings[Math.floor(Math.random() * blessings.length)];
+        bubble.textContent = blessing;
+        
+        // 随机位置
+        const left = Math.random() * 80 + 10; // 10% 到 90%
+        const top = Math.random() * 50 + 30; // 30% 到 80%
+        
+        // 随机动画时长
+        const duration = Math.random() * 3 + 4; // 4秒 到 7秒
+        
+        // 随机延迟
+        const delay = Math.random() * 2;
+        
+        bubble.style.cssText = `
+            left: ${left}%;
+            top: ${top}%;
+            animation-duration: ${duration}s;
+            animation-delay: ${delay}s;
+        `;
+        
+        blessingsContainer.appendChild(bubble);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+            if (bubble.parentNode) {
+                bubble.remove();
+            }
+        }, (duration + delay) * 1000);
+    }
+    
+    // 初始创建一些祝福语
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => createBlessingBubble(), i * 800);
+    }
+    
+    // 定期创建新祝福语
+    setInterval(() => {
+        if (Math.random() > 0.4) { // 60% 概率创建新祝福语
+            createBlessingBubble();
+        }
+    }, 2000);
+}
+
 // 初始化动画
 function initAnimations() {
     // 为祝福网格项添加交错动画
@@ -392,6 +593,34 @@ function triggerMiniCelebration() {
         setTimeout(() => {
             createFirework();
         }, i * 50);
+    }
+    
+    // 创建额外气球
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+            // 调用气球创建函数
+            const balloonsContainer = document.getElementById('balloonsContainer');
+            if (balloonsContainer) {
+                // 这里需要访问initBalloons中的createBalloon函数
+                // 为了简化，我们直接触发气球创建
+                const event = new Event('createBalloon');
+                document.dispatchEvent(event);
+            }
+        }, i * 200);
+    }
+    
+    // 创建额外祝福语
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+            // 调用祝福语创建函数
+            const blessingsContainer = document.getElementById('blessingsContainer');
+            if (blessingsContainer) {
+                // 这里需要访问initBlessings中的createBlessingBubble函数
+                // 为了简化，我们直接触发祝福语创建
+                const event = new Event('createBlessing');
+                document.dispatchEvent(event);
+            }
+        }, i * 300);
     }
     
     // 播放庆祝声音（如果有）

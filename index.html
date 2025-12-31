@@ -21,6 +21,12 @@
         <div class="sparkle"></div>
         <div class="sparkle"></div>
     </div>
+    
+    <!-- 气球容器 -->
+    <div class="balloons-container" id="balloonsContainer"></div>
+    
+    <!-- 祝福语弹出容器 -->
+    <div class="blessings-container" id="blessingsContainer"></div>
 
     <!-- 主容器 -->
     <div class="container">
@@ -142,9 +148,25 @@
     <!-- 烟花效果容器 -->
     <div class="fireworks-container" id="fireworks"></div>
 
+    <!-- 音频控制 -->
+    <div class="audio-controls">
+        <button class="audio-btn" id="audioToggle">
+            <i class="fas fa-volume-up"></i>
+            <span class="audio-text">音乐</span>
+        </button>
+        <div class="volume-slider">
+            <input type="range" id="volumeSlider" min="0" max="100" value="50">
+        </div>
+    </div>
+
     <!-- 音频 -->
     <audio id="newYearSound" loop>
         <source src="https://assets.mixkit.co/music/preview/mixkit-happy-new-year-2021-1085.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- 气球音效 -->
+    <audio id="balloonSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-balloon-pop-2928.mp3" type="audio/mpeg">
     </audio>
 
     <script src="script.js"></script>
