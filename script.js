@@ -23,11 +23,18 @@ function initAudioAutoPlay() {
     // 设置初始音量
     audio.volume = 0.3;
     
+    // 标记音频是否已开始播放
+    let audioStarted = false;
+    
     // 尝试自动播放
     const playPromise = audio.play();
     
     if (playPromise !== undefined) {
-        playPromise.catch(e => {
+        playPromise.then(() => {
+            // 自动播放成功
+            audioStarted = true;
+            console.log("音乐自动播放成功");
+        }).catch(e => {
             console.log("音频自动播放被阻止，需要用户交互");
             
             // 显示提示
@@ -35,24 +42,30 @@ function initAudioAutoPlay() {
             
             // 添加点击事件监听器到整个文档
             document.addEventListener('click', function initAudioOnClick() {
-                audio.play().then(() => {
-                    console.log("音乐已开始播放");
-                    hideAudioPrompt();
-                }).catch(err => {
-                    console.log("音乐播放失败:", err);
-                });
+                if (!audioStarted) {
+                    audio.play().then(() => {
+                        console.log("音乐已开始播放");
+                        audioStarted = true;
+                        hideAudioPrompt();
+                    }).catch(err => {
+                        console.log("音乐播放失败:", err);
+                    });
+                }
                 // 移除监听器，只执行一次
                 document.removeEventListener('click', initAudioOnClick);
             }, { once: true });
             
             // 添加音频控制按钮点击事件
             audioToggle.addEventListener('click', function initAudioOnButtonClick() {
-                audio.play().then(() => {
-                    console.log("音乐已通过按钮开始播放");
-                    hideAudioPrompt();
-                }).catch(err => {
-                    console.log("音乐播放失败:", err);
-                });
+                if (!audioStarted) {
+                    audio.play().then(() => {
+                        console.log("音乐已通过按钮开始播放");
+                        audioStarted = true;
+                        hideAudioPrompt();
+                    }).catch(err => {
+                        console.log("音乐播放失败:", err);
+                    });
+                }
             }, { once: true });
         });
     }
@@ -394,22 +407,6 @@ function initThemeToggle() {
 function initFireworks() {
     const fireworksContainer = document.getElementById('fireworks');
     
-    // 只在倒计时接近0时显示烟花
-    function checkForFireworks() {
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-        
-        const timeRemaining = tomorrow - now;
-        const hoursRemaining = timeRemaining / (1000 * 60 * 60);
-        
-        // 如果距离新年不到1小时，开始显示烟花
-        if (hoursRemaining < 1 && hoursRemaining > 0) {
-            createFirework();
-        }
-    }
-    
     // 创建单个烟花
     function createFirework() {
         const firework = document.createElement('div');
@@ -423,12 +420,15 @@ function initFireworks() {
         const colors = ['#ff6b6b', '#4ecdc4', '#ffd166', '#9d65ff', '#ff8e8e'];
         const color = colors[Math.floor(Math.random() * colors.length)];
         
+        // 随机大小
+        const size = Math.random() * 4 + 3; // 3px 到 7px
+        
         firework.style.cssText = `
             position: absolute;
             left: ${x}%;
             top: ${y}%;
-            width: 5px;
-            height: 5px;
+            width: ${size}px;
+            height: ${size}px;
             background: ${color};
             border-radius: 50%;
             box-shadow: 0 0 10px ${color};
@@ -440,7 +440,9 @@ function initFireworks() {
         
         // 动画结束后移除元素
         setTimeout(() => {
-            firework.remove();
+            if (firework.parentNode) {
+                firework.remove();
+            }
         }, 1000);
     }
     
@@ -452,23 +454,52 @@ function initFireworks() {
                 transform: scale(1);
                 opacity: 1;
             }
+            50% {
+                transform: scale(15);
+                opacity: 0.8;
+            }
             100% {
-                transform: scale(20);
+                transform: scale(30);
                 opacity: 0;
             }
         }
     `;
     document.head.appendChild(style);
     
-    // 定期检查是否需要显示烟花
-    setInterval(checkForFireworks, 10000);
+    // 只在倒计时接近0时显示烟花（保留原有功能）
+    function checkForFireworks() {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        
+        const timeRemaining = tomorrow - now;
+        const hoursRemaining = timeRemaining / (1000 * 60 * 60);
+        
+        // 如果距离新年不到1小时，开始显示更多烟花
+        if (hoursRemaining < 1 && hoursRemaining > 0) {
+            // 显示一组烟花
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => createFirework(), i * 200);
+            }
+        }
+    }
     
-    // 每30秒随机显示一个烟花（为了效果）
+    // 页面加载时立即开始播放烟花（类似气球效果）
+    // 初始创建一组烟花
+    for (let i = 0; i < 15; i++) {
+        setTimeout(() => createFirework(), i * 150); // 更快的创建速度
+    }
+    
+    // 定期创建新烟花（增加频率）
     setInterval(() => {
-        if (Math.random() > 0.7) {
+        if (Math.random() > 0.3) { // 70% 概率创建新烟花
             createFirework();
         }
-    }, 30000);
+    }, 2000); // 每2秒可能创建一个新烟花
+    
+    // 定期检查是否需要显示更多烟花（接近新年时）
+    setInterval(checkForFireworks, 10000);
 }
 
 // 初始化音频控制
@@ -555,17 +586,14 @@ function initBalloons() {
         
         balloonsContainer.appendChild(balloon);
         
-        // 气球动画结束后移除
-        setTimeout(() => {
-            if (balloon.parentNode) {
-                // 播放气球爆炸音效
-                if (balloonSound) {
-                    balloonSound.currentTime = 0;
-                    balloonSound.play().catch(e => console.log("音效播放失败"));
-                }
-                balloon.remove();
-            }
-        }, (duration + delay) * 1000);
+    // 气球动画结束后移除
+    setTimeout(() => {
+        if (balloon.parentNode) {
+            // 移除气球爆炸音效，避免与主音乐冲突
+            // 气球爆炸时不播放音效
+            balloon.remove();
+        }
+    }, (duration + delay) * 1000);
     }
     
     // 初始创建更多气球（增加数量）
