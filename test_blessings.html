@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试祝福留言板</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>祝福留言板功能测试</h1>
+        
+        <div class="test-section">
+            <h2>测试 1: 检查localStorage功能</h2>
+            <button onclick="testLocalStorage()">测试localStorage</button>
+            <div id="test1-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试 2: 测试HTML转义函数</h2>
+            <button onclick="testEscapeHtml()">测试HTML转义</button>
+            <div id="test2-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试 3: 模拟祝福留言发布</h2>
+            <div>
+                <input type="text" id="testName" placeholder="测试名字" value="测试用户">
+                <textarea id="testMessage" placeholder="测试祝福语" rows="3">这是一条测试祝福语！</textarea>
+                <button onclick="testAddBlessing()">模拟发布祝福</button>
+            </div>
+            <div id="test3-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试 4: 检查现有祝福留言</h2>
+            <button onclick="testLoadBlessings()">加载祝福留言</button>
+            <div id="test4-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试 5: 清空测试数据</h2>
+            <button onclick="testClearData()">清空测试数据</button>
+            <div id="test5-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试结果汇总</h2>
+            <div id="summary"></div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        
+        function addTestResult(testName, success, message) {
+            const result = {
+                name: testName,
+                success: success,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+            testResults.push(result);
+            updateSummary();
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = success ? 'test-result success' : 'test-result error';
+            resultDiv.innerHTML = `<strong>${testName}:</strong> ${message}`;
+            
+            return resultDiv;
+        }
+        
+        function updateSummary() {
+            const summaryDiv = document.getElementById('summary');
+            const total = testResults.length;
+            const passed = testResults.filter(r => r.success).length;
+            const failed = total - passed;
+            
+            summaryDiv.innerHTML = `
+                <h3>测试结果: ${passed}/${total} 通过</h3>
+                <p>通过: ${passed}, 失败: ${failed}</p>
+                <ul>
+                    ${testResults.map(r => `
+                        <li style="color: ${r.success ? 'green' : 'red'}">
+                            ${r.name}: ${r.success ? '✓' : '✗'} ${r.message}
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+        
+        // 测试 1: localStorage功能
+        function testLocalStorage() {
+            const resultDiv = document.getElementById('test1-result');
+            resultDiv.innerHTML = '';
+            
+            try {
+                // 测试localStorage是否可用
+                localStorage.setItem('test_key', 'test_value');
+                const value = localStorage.getItem('test_key');
+                localStorage.removeItem('test_key');
+                
+                if (value === 'test_value') {
+                    resultDiv.appendChild(addTestResult('localStorage测试', true, 'localStorage功能正常'));
+                } else {
+                    resultDiv.appendChild(addTestResult('localStorage测试', false, 'localStorage存储/读取失败'));
+                }
+            } catch (error) {
+                resultDiv.appendChild(addTestResult('localStorage测试', false, `localStorage错误: ${error.message}`));
+            }
+        }
+        
+        // 测试 2: HTML转义函数
+        function testEscapeHtml() {
+            const resultDiv = document.getElementById('test2-result');
+            resultDiv.innerHTML = '';
+            
+            // 从主脚本中复制escapeHtml函数
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            const testCases = [
+                { input: '<script>alert("xss")</script>', expected: '<script>alert("xss")</script>' },
+                { input: '正常文本', expected: '正常文本' },
+                { input: '&<>"\'', expected: '&<>"&#39;' }
+            ];
+            
+            let allPassed = true;
+            let messages = [];
+            
+            testCases.forEach((testCase, index) => {
+                const result = escapeHtml(testCase.input);
+                const passed = result === testCase.expected;
+                
+                if (!passed) {
+                    allPassed = false;
+                    messages.push(`测试 ${index + 1} 失败: 输入 "${testCase.input}", 期望 "${testCase.expected}", 得到 "${result}"`);
+                }
+            });
+            
+            if (allPassed) {
+                resultDiv.appendChild(addTestResult('HTML转义测试', true, '所有HTML转义测试通过'));
+            } else {
+                resultDiv.appendChild(addTestResult('HTML转义测试', false, messages.join('; ')));
+            }
+        }
+        
+        // 测试 3: 模拟祝福留言发布
+        function testAddBlessing() {
+            const resultDiv = document.getElementById('test3-result');
+            resultDiv.innerHTML = '';
+            
+            const name = document.getElementById('testName').value.trim();
+            const message = document.getElementById('testMessage').value.trim();
+            
+            if (!name || !message) {
+                resultDiv.appendChild(addTestResult('发布祝福测试', false, '名字和祝福语不能为空'));
+                return;
+            }
+            
+            try {
+                // 模拟祝福留言对象
+                const blessing = {
+                    id: Date.now(),
+                    name: name,
+                    message: message,
+                    timestamp: new Date().toISOString(),
+                    timeDisplay: new Date().toLocaleString('zh-CN')
+                };
+                
+                // 保存到localStorage
+                let blessings = [];
+                const savedBlessings = localStorage.getItem('newYearBlessings');
+                
+                if (savedBlessings) {
+                    try {
+                        blessings = JSON.parse(savedBlessings);
+                    } catch (error) {
+                        console.error('解析祝福留言失败:', error);
+                    }
+                }
+                
+                blessings.unshift(blessing);
+                
+                // 限制最多保存50条留言
+                if (blessings.length > 50) {
+                    blessings = blessings.slice(0, 50);
+                }
+                
+                localStorage.setItem('newYearBlessings', JSON.stringify(blessings));
+                
+                resultDiv.appendChild(addTestResult('发布祝福测试', true, 
+                    `祝福发布成功！ID: ${blessing.id}, 名字: ${name}, 消息: ${message.substring(0, 50)}...`));
+                    
+            } catch (error) {
+                resultDiv.appendChild(addTestResult('发布祝福测试', false, `发布失败: ${error.message}`));
+            }
+        }
+        
+        // 测试 4: 检查现有祝福留言
+        function testLoadBlessings() {
+            const resultDiv = document.getElementById('test4-result');
+            resultDiv.innerHTML = '';
+            
+            try {
+                const savedBlessings = localStorage.getItem('newYearBlessings');
+                if (!savedBlessings) {
+                    resultDiv.appendChild(addTestResult('加载祝福测试', true, '没有找到祝福留言（这是正常的）'));
+                    return;
+                }
+                
+                const blessings = JSON.parse(savedBlessings);
+                const count = blessings.length;
+                
+                let html = `<p>找到 ${count} 条祝福留言：</p>`;
+                html += '<ul>';
+                blessings.slice(0, 5).forEach(b => {
+                    html += `<li><strong>${b.name}:</strong> ${b.message.substring(0, 50)}... (${b.timeDisplay})</li>`;
+                });
+                if (count > 5) {
+                    html += `<li>... 还有 ${count - 5} 条更多留言</li>`;
+                }
+                html += '</ul>';
+                
+                resultDiv.innerHTML = html;
+                resultDiv.appendChild(addTestResult('加载祝福测试', true, `成功加载 ${count} 条祝福留言`));
+                
+            } catch (error) {
+                resultDiv.appendChild(addTestResult('加载祝福测试', false, `加载失败: ${error.message}`));
+            }
+        }
+        
+        // 测试 5: 清空测试数据
+        function testClearData() {
+            const resultDiv = document.getElementById('test5-result');
+            resultDiv.innerHTML = '';
+            
+            try {
+                localStorage.removeItem('newYearBlessings');
+                localStorage.removeItem('likedBlessings');
+                resultDiv.appendChild(addTestResult('清空数据测试', true, '测试数据已清空'));
+            } catch (error) {
+                resultDiv.appendChild(addTestResult('清空数据测试', false, `清空失败: ${error.message}`));
+            }
+        }
+        
+        // 页面加载时自动运行一些测试
+        window.onload = function() {
+            setTimeout(function() {
+                testLocalStorage();
+                testEscapeHtml();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

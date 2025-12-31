@@ -127,10 +127,91 @@
             </div>
         </main>
 
+        <!-- 祝福留言板 -->
+        <div class="blessings-board animate__animated animate__fadeIn">
+            <h2 class="section-title">祝福留言板</h2>
+            <p class="section-subtitle">看看大家的新年祝福</p>
+            
+            <div class="board-container">
+                <div class="board-input">
+                    <div class="input-group">
+                        <label for="userName">你的名字：</label>
+                        <input type="text" id="userName" placeholder="输入你的名字">
+                    </div>
+                    <div class="input-group">
+                        <label for="userMessage">你的祝福：</label>
+                        <textarea id="userMessage" placeholder="写下你的新年祝福..."></textarea>
+                    </div>
+                    <button class="submit-btn" id="submitBlessing">
+                        <i class="fas fa-comment-alt"></i> 发布祝福
+                    </button>
+                </div>
+                
+                <div class="board-messages" id="blessingsList">
+                    <!-- 祝福留言将动态显示在这里 -->
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <p>还没有祝福留言，快来第一个写下祝福吧！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新年传统 -->
+        <div class="traditions-section animate__animated animate__fadeIn">
+            <h2 class="section-title">新年传统与习俗</h2>
+            <div class="traditions-grid">
+                <div class="tradition-item">
+                    <div class="tradition-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3>团圆饭</h3>
+                    <p>家人团聚，共享丰盛的年夜饭，象征团圆和美满。</p>
+                </div>
+                <div class="tradition-item">
+                    <div class="tradition-icon">
+                        <i class="fas fa-red-envelope"></i>
+                    </div>
+                    <h3>红包</h3>
+                    <p>长辈给晚辈发红包，寓意传递祝福和好运。</p>
+                </div>
+                <div class="tradition-item">
+                    <div class="tradition-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3>放鞭炮</h3>
+                    <p>驱赶邪祟，迎接新年的好运和喜庆。</p>
+                </div>
+                <div class="tradition-item">
+                    <div class="tradition-icon">
+                        <i class="fas fa-dragon"></i>
+                    </div>
+                    <h3>舞龙舞狮</h3>
+                    <p>传统表演，象征力量、智慧和好运。</p>
+                </div>
+            </div>
+        </div>
+
         <!-- 页脚 -->
         <footer class="footer">
             <div class="footer-content">
                 <p class="footer-text">愿新年的钟声为你带来幸福与希望</p>
+                <div class="footer-grid">
+                    <div class="footer-section">
+                        <h4>关于我们</h4>
+                        <p>用心制作的新年祝福网站，传递温暖与关怀。</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>快速链接</h4>
+                        <a href="#top">回到顶部</a>
+                        <a href="#" onclick="initInteractiveCard()">发送祝福</a>
+                        <a href="#" onclick="document.getElementById('blessingsList').scrollIntoView()">查看留言</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>联系方式</h4>
+                        <p>如有问题或建议，欢迎联系我们。</p>
+                    </div>
+                </div>
                 <div class="social-icons">
                     <a href="#" class="social-icon"><i class="fab fa-weixin"></i></a>
                     <a href="#" class="social-icon"><i class="fab fa-qq"></i></a>

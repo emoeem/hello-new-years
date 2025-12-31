@@ -9,23 +9,125 @@ document.addEventListener('DOMContentLoaded', function() {
     initAudioControls();
     initBalloons();
     initBlessings();
+    initBlessingsBoard();
     
-    // 自动播放背景音乐（低音量）
-    const audio = document.getElementById('newYearSound');
-    audio.volume = 0.3;
-    audio.play().catch(e => {
-        console.log("音频自动播放被阻止，需要用户交互");
-        // 显示提示让用户点击页面任意位置开始音乐
-        document.body.addEventListener('click', function initAudioOnce() {
-            audio.play().then(() => {
-                console.log("音乐已开始播放");
-            }).catch(err => {
-                console.log("音乐播放失败:", err);
-            });
-            document.body.removeEventListener('click', initAudioOnce);
-        }, { once: true });
-    });
+    // 改进的音频自动播放处理
+    initAudioAutoPlay();
 });
+
+// 改进的音频自动播放初始化
+function initAudioAutoPlay() {
+    const audio = document.getElementById('newYearSound');
+    const audioToggle = document.getElementById('audioToggle');
+    
+    // 设置初始音量
+    audio.volume = 0.3;
+    
+    // 尝试自动播放
+    const playPromise = audio.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.catch(e => {
+            console.log("音频自动播放被阻止，需要用户交互");
+            
+            // 显示提示
+            showAudioPrompt();
+            
+            // 添加点击事件监听器到整个文档
+            document.addEventListener('click', function initAudioOnClick() {
+                audio.play().then(() => {
+                    console.log("音乐已开始播放");
+                    hideAudioPrompt();
+                }).catch(err => {
+                    console.log("音乐播放失败:", err);
+                });
+                // 移除监听器，只执行一次
+                document.removeEventListener('click', initAudioOnClick);
+            }, { once: true });
+            
+            // 添加音频控制按钮点击事件
+            audioToggle.addEventListener('click', function initAudioOnButtonClick() {
+                audio.play().then(() => {
+                    console.log("音乐已通过按钮开始播放");
+                    hideAudioPrompt();
+                }).catch(err => {
+                    console.log("音乐播放失败:", err);
+                });
+            }, { once: true });
+        });
+    }
+}
+
+// 显示音频提示
+function showAudioPrompt() {
+    const prompt = document.createElement('div');
+    prompt.id = 'audioPrompt';
+    prompt.innerHTML = `
+        <div class="audio-prompt">
+            <i class="fas fa-music"></i>
+            <p>点击页面任意位置或音频按钮开始播放音乐</p>
+        </div>
+    `;
+    document.body.appendChild(prompt);
+    
+    // 添加样式
+    const style = document.createElement('style');
+    style.textContent = `
+        .audio-prompt {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1001;
+            animation: fadeInUp 0.5s ease;
+            max-width: 300px;
+        }
+        
+        .audio-prompt i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .audio-prompt p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// 隐藏音频提示
+function hideAudioPrompt() {
+    const prompt = document.getElementById('audioPrompt');
+    if (prompt) {
+        prompt.style.animation = 'fadeOutDown 0.5s ease forwards';
+        setTimeout(() => {
+            if (prompt.parentNode) {
+                prompt.remove();
+            }
+        }, 500);
+    }
+}
 
 // 初始化倒计时
 function initCountdown() {
@@ -662,4 +764,307 @@ function celebrateNewYear() {
     
     // 显示庆祝消息
     alert('🎉 新年快乐！ 🎉\n愿新的一年带给你健康、幸福和成功！');
+}
+
+// 初始化祝福留言板
+function initBlessingsBoard() {
+    const submitBtn = document.getElementById('submitBlessing');
+    const userNameInput = document.getElementById('userName');
+    const userMessageInput = document.getElementById('userMessage');
+    const blessingsList = document.getElementById('blessingsList');
+    
+    // 从localStorage加载祝福留言
+    loadBlessings();
+    
+    // 发布祝福按钮点击事件
+    submitBtn.addEventListener('click', function() {
+        const userName = userNameInput.value.trim();
+        const userMessage = userMessageInput.value.trim();
+        
+        if (!userName) {
+            alert('请输入你的名字！');
+            userNameInput.focus();
+            return;
+        }
+        
+        if (!userMessage) {
+            alert('请输入祝福语！');
+            userMessageInput.focus();
+            return;
+        }
+        
+        // 创建祝福留言对象
+        const blessing = {
+            id: Date.now(),
+            name: userName,
+            message: userMessage,
+            timestamp: new Date().toISOString(),
+            timeDisplay: new Date().toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        };
+        
+        // 保存到localStorage
+        saveBlessing(blessing);
+        
+        // 添加到留言列表
+        addBlessingToDOM(blessing);
+        
+        // 清空输入框
+        userNameInput.value = '';
+        userMessageInput.value = '';
+        
+        // 显示成功消息
+        showBlessingSuccess();
+        
+        // 触发小型庆祝效果
+        triggerMiniCelebration();
+    });
+    
+    // 按Enter键提交祝福
+    userMessageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            submitBtn.click();
+        }
+    });
+    
+    // 从localStorage加载祝福留言
+    function loadBlessings() {
+        const savedBlessings = localStorage.getItem('newYearBlessings');
+        if (savedBlessings) {
+            try {
+                const blessings = JSON.parse(savedBlessings);
+                // 按时间倒序排序（最新的在前）
+                blessings.sort((a, b) => b.id - a.id);
+                
+                // 清空当前列表
+                blessingsList.innerHTML = '';
+                
+                // 添加所有祝福留言
+                blessings.forEach(blessing => {
+                    addBlessingToDOM(blessing);
+                });
+                
+                // 如果没有祝福留言，显示空状态
+                if (blessings.length === 0) {
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error('加载祝福留言失败:', error);
+                showEmptyState();
+            }
+        } else {
+            showEmptyState();
+        }
+    }
+    
+    // 保存祝福留言到localStorage
+    function saveBlessing(blessing) {
+        let blessings = [];
+        const savedBlessings = localStorage.getItem('newYearBlessings');
+        
+        if (savedBlessings) {
+            try {
+                blessings = JSON.parse(savedBlessings);
+            } catch (error) {
+                console.error('解析祝福留言失败:', error);
+            }
+        }
+        
+        // 添加到数组开头（最新的在前）
+        blessings.unshift(blessing);
+        
+        // 限制最多保存50条留言
+        if (blessings.length > 50) {
+            blessings = blessings.slice(0, 50);
+        }
+        
+        // 保存到localStorage
+        localStorage.setItem('newYearBlessings', JSON.stringify(blessings));
+    }
+    
+    // 添加祝福留言到DOM
+    function addBlessingToDOM(blessing) {
+        // 移除空状态（如果有）
+        const emptyState = blessingsList.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.remove();
+        }
+        
+        // 创建祝福留言元素
+        const blessingElement = document.createElement('div');
+        blessingElement.className = 'blessing-message animate__animated animate__fadeIn';
+        blessingElement.innerHTML = `
+            <div class="blessing-header">
+                <span class="blessing-author">
+                    <i class="fas fa-user-circle"></i> ${escapeHtml(blessing.name)}
+                </span>
+                <span class="blessing-time">${blessing.timeDisplay}</span>
+            </div>
+            <div class="blessing-content">${escapeHtml(blessing.message)}</div>
+        `;
+        
+        // 添加到列表开头
+        blessingsList.insertBefore(blessingElement, blessingsList.firstChild);
+        
+        // 添加点赞功能
+        addLikeFeature(blessingElement, blessing.id);
+    }
+    
+    // 添加点赞功能
+    function addLikeFeature(element, blessingId) {
+        const likeBtn = document.createElement('button');
+        likeBtn.className = 'like-btn';
+        likeBtn.innerHTML = '<i class="far fa-heart"></i> 点赞';
+        likeBtn.style.cssText = `
+            margin-top: 10px;
+            padding: 5px 12px;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 20px;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        `;
+        
+        // 检查是否已经点赞
+        const likedBlessings = JSON.parse(localStorage.getItem('likedBlessings') || '[]');
+        const isLiked = likedBlessings.includes(blessingId);
+        
+        if (isLiked) {
+            likeBtn.innerHTML = '<i class="fas fa-heart"></i> 已点赞';
+            likeBtn.style.background = 'rgba(255, 107, 107, 0.3)';
+        }
+        
+        likeBtn.addEventListener('click', function() {
+            let likedBlessings = JSON.parse(localStorage.getItem('likedBlessings') || '[]');
+            
+            if (isLiked) {
+                // 取消点赞
+                likedBlessings = likedBlessings.filter(id => id !== blessingId);
+                likeBtn.innerHTML = '<i class="far fa-heart"></i> 点赞';
+                likeBtn.style.background = 'rgba(255, 107, 107, 0.1)';
+            } else {
+                // 点赞
+                likedBlessings.push(blessingId);
+                likeBtn.innerHTML = '<i class="fas fa-heart"></i> 已点赞';
+                likeBtn.style.background = 'rgba(255, 107, 107, 0.3)';
+                
+                // 添加点赞动画
+                likeBtn.classList.add('animate__animated', 'animate__heartBeat');
+                setTimeout(() => {
+                    likeBtn.classList.remove('animate__animated', 'animate__heartBeat');
+                }, 1000);
+            }
+            
+            localStorage.setItem('likedBlessings', JSON.stringify(likedBlessings));
+        });
+        
+        element.appendChild(likeBtn);
+    }
+    
+    // 显示空状态
+    function showEmptyState() {
+        blessingsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-comments"></i>
+                <p>还没有祝福留言，快来第一个写下祝福吧！</p>
+            </div>
+        `;
+    }
+    
+    // 显示发布成功消息
+    function showBlessingSuccess() {
+        // 创建成功提示
+        const successMsg = document.createElement('div');
+        successMsg.className = 'blessing-success';
+        successMsg.innerHTML = `
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <p>祝福发布成功！</p>
+            </div>
+        `;
+        
+        // 添加样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .blessing-success {
+                position: fixed;
+                top: 100px;
+                right: 30px;
+                background: var(--card-bg);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 15px 20px;
+                box-shadow: var(--shadow);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                z-index: 1001;
+                animation: slideInRight 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+            }
+            
+            .success-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .success-content i {
+                font-size: 1.5rem;
+                color: #4CAF50;
+            }
+            
+            .success-content p {
+                margin: 0;
+                font-size: 0.9rem;
+                color: var(--text-color);
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(100%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            @keyframes fadeOut {
+                to {
+                    opacity: 0;
+                    transform: translateX(100%);
+                }
+            }
+        `;
+        
+        document.head.appendChild(style);
+        document.body.appendChild(successMsg);
+        
+        // 3秒后移除
+        setTimeout(() => {
+            if (successMsg.parentNode) {
+                successMsg.remove();
+            }
+        }, 3000);
+    }
+    
+    // HTML转义函数，防止XSS攻击
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 }
