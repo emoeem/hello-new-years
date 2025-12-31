@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新年祝福 | 送给特别的你</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+    <!-- 背景装饰元素 -->
+    <div class="bg-elements">
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 标题部分 -->
+        <header class="header animate__animated animate__fadeInDown">
+            <div class="year-badge">2026</div>
+            <h1 class="main-title">新年快乐</h1>
+            <p class="subtitle">愿新的一年带给你无尽的喜悦与成功</p>
+            <div class="countdown-container">
+                <div class="countdown-title">距离新年还有：</div>
+                <div class="countdown" id="countdown">
+                    <div class="countdown-item">
+                        <span class="countdown-number" id="hours">00</span>
+                        <span class="countdown-label">小时</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-number" id="minutes">00</span>
+                        <span class="countdown-label">分钟</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-number" id="seconds">00</span>
+                        <span class="countdown-label">秒</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 祝福卡片 -->
+        <main class="main-content">
+            <div class="card animate__animated animate__fadeInUp">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h2 class="card-title">致我亲爱的朋友</h2>
+                </div>
+                <div class="card-body">
+                    <div class="message-container">
+                        <p class="message-text">
+                            亲爱的朋友，<br><br>
+                            在这辞旧迎新的美好时刻，我想把最真挚的祝福送给你。<br>
+                            愿新的一年里，你的每一天都充满阳光与欢笑，<br>
+                            每一个梦想都能照进现实，每一次努力都有丰硕的回报。<br><br>
+                            感谢你一直以来的陪伴与支持，<br>
+                            愿我们的友谊如这新年的钟声，永远清脆响亮。<br><br>
+                            祝你新年快乐，万事如意！
+                        </p>
+                        <div class="signature">
+                            <p>—— 永远的朋友</p>
+                            <p class="date">2025年12月31日</p>
+                        </div>
+                    </div>
+                    
+                    <div class="wishes-grid">
+                        <div class="wish-item">
+                            <i class="fas fa-star wish-icon"></i>
+                            <h3>健康平安</h3>
+                            <p>愿你身体健康，平安喜乐</p>
+                        </div>
+                        <div class="wish-item">
+                            <i class="fas fa-briefcase wish-icon"></i>
+                            <h3>事业有成</h3>
+                            <p>愿你在工作中步步高升</p>
+                        </div>
+                        <div class="wish-item">
+                            <i class="fas fa-smile wish-icon"></i>
+                            <h3>幸福快乐</h3>
+                            <p>愿你每天都充满欢声笑语</p>
+                        </div>
+                        <div class="wish-item">
+                            <i class="fas fa-gift wish-icon"></i>
+                            <h3>梦想成真</h3>
+                            <p>愿你所有的愿望都能实现</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 互动祝福 -->
+            <div class="interactive-section animate__animated animate__fadeIn">
+                <h2 class="section-title">发送你的祝福</h2>
+                <div class="interactive-card">
+                    <div class="input-group">
+                        <label for="friendName">朋友的名字：</label>
+                        <input type="text" id="friendName" placeholder="输入朋友的名字">
+                    </div>
+                    <div class="input-group">
+                        <label for="customMessage">个性化祝福：</label>
+                        <textarea id="customMessage" placeholder="写下你想对朋友说的话..."></textarea>
+                    </div>
+                    <button class="send-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i> 生成祝福卡片
+                    </button>
+                    <div class="generated-card" id="generatedCard">
+                        <!-- 生成的祝福卡片将显示在这里 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p class="footer-text">愿新年的钟声为你带来幸福与希望</p>
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="fab fa-weixin"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-qq"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-weibo"></i></a>
+                    <a href="#" class="social-icon"><i class="fas fa-envelope"></i></a>
+                </div>
+                <p class="copyright">© 2025 新年祝福 | 用心制作的礼物</p>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i> 切换主题
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 烟花效果容器 -->
+    <div class="fireworks-container" id="fireworks"></div>
+
+    <!-- 音频 -->
+    <audio id="newYearSound" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-happy-new-year-2021-1085.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
